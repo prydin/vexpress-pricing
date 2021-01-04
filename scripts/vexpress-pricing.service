@@ -1,0 +1,9 @@
+[Unit]
+Description=vExpress Pricing
+
+[Service]
+WorkingDirectory=/opt/vexpress-pricing
+ExecStart=/usr/bin/java -Xmx512m -jar /opt/vexpress-pricing/pricing.jar
+
+[Install]
+WantedBy=multi-user.target

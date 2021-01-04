@@ -1,0 +1,1 @@
+pricing.zipCodeUrl = "http://$ZIPCODE_SERVER:8080"

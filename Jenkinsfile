@@ -61,46 +61,46 @@ pipeline {
                 }
             }
         }
-    }
-    stage('Configure') {
-        steps {
-            withCredentials([usernamePassword(credentialsId: 'sshCreds', passwordVariable: 'PASSWORD', usernameVariable: 'USER')]) {
-                script {
-                    def txt = readFile(file: 'templates/application-properties.tpl')
-                    txt = txt.replace('$ZIPCODE_SERVER', env.DBUSER)
-                    writeFile(file: "application.properties", text: txt)
-
-                    def remote = [:]
-                    remote.name = 'appServer'
-                    remote.host = env.appIp
-                    remote.user = USER
-                    remote.password = PASSWORD
-                    remote.allowAnyHosts = true
-
-                    // The first first attempt may fail if cloud-init hasn't created user account yet
-                    retry(20) {
-                        sleep time: 10, unit: 'SECONDS'
-                        sshPut remote: remote, from: 'application.properties', into: '/tmp'
-                    }
-                    sshPut remote: remote, from: 'scripts/vexpress-pricing.service', into: '/tmp'
-                    sshPut remote: remote, from: 'scripts/configureAppserver.sh', into: '/tmp'
-                    sshCommand remote: remote, command: 'chmod +x /tmp/configureAppserver.sh'
-                    sshCommand remote: remote, sudo: true, command: "/tmp/configureAppserver.sh ${USER} ${env.apiUser} ${env.apiToken} ${env.BUILD_URL} ${env.version}"
-                }
-            }
-        }
-        stage('Finalize') {
+        stage('Configure') {
             steps {
-                // Make sure this runs after both DB and appserver are fully configured
                 withCredentials([usernamePassword(credentialsId: 'sshCreds', passwordVariable: 'PASSWORD', usernameVariable: 'USER')]) {
                     script {
+                        def txt = readFile(file: 'templates/application-properties.tpl')
+                        txt = txt.replace('$ZIPCODE_SERVER', env.DBUSER)
+                        writeFile(file: "application.properties", text: txt)
+
                         def remote = [:]
                         remote.name = 'appServer'
                         remote.host = env.appIp
                         remote.user = USER
                         remote.password = PASSWORD
                         remote.allowAnyHosts = true
-                        sshCommand remote: remote, sudo: true, command: "systemctl start vexpress-pricing"
+
+                        // The first first attempt may fail if cloud-init hasn't created user account yet
+                        retry(20) {
+                            sleep time: 10, unit: 'SECONDS'
+                            sshPut remote: remote, from: 'application.properties', into: '/tmp'
+                        }
+                        sshPut remote: remote, from: 'scripts/vexpress-pricing.service', into: '/tmp'
+                        sshPut remote: remote, from: 'scripts/configureAppserver.sh', into: '/tmp'
+                        sshCommand remote: remote, command: 'chmod +x /tmp/configureAppserver.sh'
+                        sshCommand remote: remote, sudo: true, command: "/tmp/configureAppserver.sh ${USER} ${env.apiUser} ${env.apiToken} ${env.BUILD_URL} ${env.version}"
+                    }
+                }
+            }
+            stage('Finalize') {
+                steps {
+                    // Make sure this runs after both DB and appserver are fully configured
+                    withCredentials([usernamePassword(credentialsId: 'sshCreds', passwordVariable: 'PASSWORD', usernameVariable: 'USER')]) {
+                        script {
+                            def remote = [:]
+                            remote.name = 'appServer'
+                            remote.host = env.appIp
+                            remote.user = USER
+                            remote.password = PASSWORD
+                            remote.allowAnyHosts = true
+                            sshCommand remote: remote, sudo: true, command: "systemctl start vexpress-pricing"
+                        }
                     }
                 }
             }

@@ -67,6 +67,7 @@ pipeline {
                 withCredentials([usernamePassword(credentialsId: 'sshCreds', passwordVariable: 'PASSWORD', usernameVariable: 'USER')]) {
                     script {
                         def txt = readFile(file: 'templates/application-properties.tpl')
+                        echo txt
                         txt = txt.replace('$ZIPCODE_SERVER', env.DBUSER)
                         writeFile(file: "application.properties", text: txt)
 

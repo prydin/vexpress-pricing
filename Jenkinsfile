@@ -68,7 +68,7 @@ pipeline {
                     script {
                         def txt = readFile(file: 'templates/application-properties.tpl')
                         echo txt
-                        txt = txt.replace('$ZIPCODE_SERVER', params.ZIPCODE_URL)
+                        txt = txt.replace('$ZIPCODE_URL', params.ZIPCODE_URL)
                         writeFile(file: "application.properties", text: txt)
 
                         def remote = [:]
@@ -87,22 +87,6 @@ pipeline {
                         sshPut remote: remote, from: 'scripts/configureAppserver.sh', into: '/tmp'
                         sshCommand remote: remote, command: 'chmod +x /tmp/configureAppserver.sh'
                         sshCommand remote: remote, sudo: true, command: "/tmp/configureAppserver.sh ${USER} ${env.apiUser} ${env.apiToken} ${env.BUILD_URL} ${env.version}"
-                    }
-                }
-            }
-        }
-        stage('Finalize') {
-            steps {
-                // Make sure this runs after both DB and appserver are fully configured
-                withCredentials([usernamePassword(credentialsId: 'sshCreds', passwordVariable: 'PASSWORD', usernameVariable: 'USER')]) {
-                    script {
-                        def remote = [:]
-                        remote.name = 'appServer'
-                        remote.host = env.appIp
-                        remote.user = USER
-                        remote.password = PASSWORD
-                        remote.allowAnyHosts = true
-                        sshCommand remote: remote, sudo: true, command: "systemctl start vexpress-pricing"
                     }
                 }
             }

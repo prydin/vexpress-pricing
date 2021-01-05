@@ -1,1 +1,1 @@
-pricing.zipCodeUrl = "http://$ZIPCODE_SERVER:8080"
+pricing.zipCodeUrl = $ZIPCODE_URL

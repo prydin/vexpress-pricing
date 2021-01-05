@@ -5,7 +5,7 @@ pipeline {
         stage('Init') {
             steps {
                 script {
-                    properties([parameters([string(defaultValue: 'http://localhost:8080',
+                    properties([parameters([string(defaultValue: '',
                             description: 'The zipcode service URL', name: 'ZIPCODE_URL', trim: false)])])
                     def r = /version\s*=\s*["'](.+)["']/
                     def gradle = readFile(file: 'build.gradle')
@@ -66,9 +66,10 @@ pipeline {
             steps {
                 withCredentials([usernamePassword(credentialsId: 'sshCreds', passwordVariable: 'PASSWORD', usernameVariable: 'USER')]) {
                     script {
+                        def zipUrl = params.ZIPCODE_URL ? params.ZIPCODE_URL : env.DEFAULT_ZIPCODE_URL
+                        echo "Zipcode service URL: ${zipUrl}"
                         def txt = readFile(file: 'templates/application-properties.tpl')
-                        echo txt
-                        txt = txt.replace('$ZIPCODE_URL', params.ZIPCODE_URL)
+                        txt = txt.replace('$ZIPCODE_URL', zipUrl)
                         writeFile(file: "application.properties", text: txt)
 
                         def remote = [:]

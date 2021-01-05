@@ -3,7 +3,6 @@ package vexpress.pricing;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.client.RestTemplate;
@@ -18,7 +17,7 @@ public class PricingController {
     return "OK";
   }
 
-  @PostMapping(value = "/price", consumes = "application/json", produces = "application/json")
+  @GetMapping(value = "/price", produces = "application/json")
   public double getPrice(
       @RequestParam final String fromZip,
       @RequestParam final String toZip,

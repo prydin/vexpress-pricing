@@ -61,6 +61,7 @@ pipeline {
                 }
             }
         }
+
         stage('Configure') {
             steps {
                 withCredentials([usernamePassword(credentialsId: 'sshCreds', passwordVariable: 'PASSWORD', usernameVariable: 'USER')]) {
@@ -88,19 +89,19 @@ pipeline {
                     }
                 }
             }
-            stage('Finalize') {
-                steps {
-                    // Make sure this runs after both DB and appserver are fully configured
-                    withCredentials([usernamePassword(credentialsId: 'sshCreds', passwordVariable: 'PASSWORD', usernameVariable: 'USER')]) {
-                        script {
-                            def remote = [:]
-                            remote.name = 'appServer'
-                            remote.host = env.appIp
-                            remote.user = USER
-                            remote.password = PASSWORD
-                            remote.allowAnyHosts = true
-                            sshCommand remote: remote, sudo: true, command: "systemctl start vexpress-pricing"
-                        }
+        }
+        stage('Finalize') {
+            steps {
+                // Make sure this runs after both DB and appserver are fully configured
+                withCredentials([usernamePassword(credentialsId: 'sshCreds', passwordVariable: 'PASSWORD', usernameVariable: 'USER')]) {
+                    script {
+                        def remote = [:]
+                        remote.name = 'appServer'
+                        remote.host = env.appIp
+                        remote.user = USER
+                        remote.password = PASSWORD
+                        remote.allowAnyHosts = true
+                        sshCommand remote: remote, sudo: true, command: "systemctl start vexpress-pricing"
                     }
                 }
             }

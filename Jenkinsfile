@@ -30,7 +30,7 @@ pipeline {
 
         stage('Publish') {
             steps {
-                archiveArtifacts(artifacts: "build/libs/pricing-${env.version}.jar", fingerprint: true, onlyIfSuccessful: true)
+                archiveArtifacts(artifacts: "build/libs/vexpress-pricing-${env.version}.jar", fingerprint: true, onlyIfSuccessful: true)
             }
         }
 

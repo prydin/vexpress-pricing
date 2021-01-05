@@ -68,7 +68,7 @@ pipeline {
                     script {
                         def txt = readFile(file: 'templates/application-properties.tpl')
                         echo txt
-                        txt = txt.replace('$ZIPCODE_SERVER', params.ZIPCODE_SERVER)
+                        txt = txt.replace('$ZIPCODE_SERVER', params.ZIPCODE_URL)
                         writeFile(file: "application.properties", text: txt)
 
                         def remote = [:]

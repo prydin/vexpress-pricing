@@ -93,10 +93,12 @@ pipeline {
             }
         }
         stage("Finalize") {
-            // Store build state
-            withAWS(credentials: 'jenkins') {
-                writeJSON(file: 'state.json', json: ['url': "http://${env.appIp}:8080"])
-                s3Upload(file: 'state.json', bucket: 'prydin-build-states', path: 'vexpress/pricing/prod/state.json')
+            steps {
+                // Store build state
+                withAWS(credentials: 'jenkins') {
+                    writeJSON(file: 'state.json', json: ['url': "http://${env.appIp}:8080"])
+                    s3Upload(file: 'state.json', bucket: 'prydin-build-states', path: 'vexpress/pricing/prod/state.json')
+                }
             }
         }
     }

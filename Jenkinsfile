@@ -6,7 +6,7 @@ pipeline {
             steps {
                 script {
                     properties([parameters([string(defaultValue: '',
-                            description: 'The zipcode service URL', name: 'ZIPCODE_URL', trim: false)])])
+                            description: 'The zipcode service URL', name: 'ZIPCODE_URL', trim: true)])])
                     def r = /version\s*=\s*["'](.+)["']/
                     def gradle = readFile(file: 'build.gradle')
                     env.version = (gradle =~ /version\s*=\s*["'](.+)["']/)[0][1]
@@ -66,7 +66,7 @@ pipeline {
             steps {
                 withCredentials([usernamePassword(credentialsId: 'sshCreds', passwordVariable: 'PASSWORD', usernameVariable: 'USER')]) {
                     script {
-                        def zipUrl = params.ZIPCODE_URL ? params.ZIPCODE_URL : env.DEFAULT_ZIPCODE_URL
+                        def zipUrl = params.ZIPCODE_URL ? params.ZIPCODE_URL : getDefaultZipcodeUrl()
                         echo "Zipcode service URL: ${zipUrl}"
                         def txt = readFile(file: 'templates/application-properties.tpl')
                         txt = txt.replace('$ZIPCODE_URL', zipUrl)
@@ -101,5 +101,15 @@ def getInternalAddress(id, resourceName) {
             expandResources: true
     )
     return dep.resources.find({ it.name == resourceName }).properties.networks[0].address
+}
+
+def getDefaultZipcodeUrl() {
+    // Store build state
+    withAWS(credentials: 'jenkins') {
+        s3Download(file: 'state.json', bucket: 'prydin-build-states', path: 'vexpress/zipcode/prod/state.json', force: true)
+        def json = readJSON(file: 'state.json')
+        print("Found deployment record: " + json)
+        return json.url
+    }
 }
 

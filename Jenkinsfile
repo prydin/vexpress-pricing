@@ -1,16 +1,19 @@
 pipeline {
     agent any
 
+    parameters {
+        string(defaultValue: 'dev', description: 'Target environment', name: 'ENVIRONMENT', trim: true)
+        string(defaultValue: '', description: 'The zipcode service URL', name: 'ZIPCODE_URL', trim: true)
+    }
+
     stages {
         stage('Init') {
             steps {
                 script {
-                    properties([parameters([string(defaultValue: '',
-                            description: 'The zipcode service URL', name: 'ZIPCODE_URL', trim: true)])])
-                    def r = /version\s*=\s*["'](.+)["']/
                     def gradle = readFile(file: 'build.gradle')
                     env.version = (gradle =~ /version\s*=\s*["'](.+)["']/)[0][1]
                     echo "Inferred version: ${env.version}"
+                    env.ENVIRONMENT = params.ENVIRONMENT
                 }
             }
         }

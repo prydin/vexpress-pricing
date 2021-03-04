@@ -15,7 +15,7 @@ pipeline {
                     env.version = (gradle =~ /version\s*=\s*["'](.+)["']/)[0][1]
                     echo "Inferred version: ${env.version}"
                     env.ENVIRONMENT = params.ENVIRONMENT
-                    env.ZIPCODE_ENV = params.ZIPCODE_ENV ? params.ENVIRONMENT
+                    env.ZIPCODE_ENV = params.ZIPCODE_ENV ? params.ZIPCODE_ENV : params.ENVIRONMENT
                 }
             }
         }

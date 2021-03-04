@@ -62,6 +62,7 @@ pipeline {
                                 resourceName: 'JavaServer')[0]
                         env.appIp = getInternalAddress(depId, "JavaServer")
                         echo "Deployed: ${depId} address: ${env.appIp}"
+                        env.depId = depId
                     }
                 }
             }
@@ -101,7 +102,7 @@ pipeline {
             steps {
                 // Store build state
                 withAWS(credentials: 'jenkins') {
-                    writeJSON(file: 'state.json', json: ['url': "http://${env.appIp}:8080"])
+                    writeJSON(file: 'state.json', json: ['url': "http://${env.appIp}:8080", 'deploymentIds': [env.depId]])
                     s3Upload(file: 'state.json', bucket: 'prydin-build-states', path: "vexpress/pricing/${env.ENVIRONMENT}/state.json")
                 }
             }

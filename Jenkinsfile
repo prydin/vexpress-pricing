@@ -4,6 +4,7 @@ pipeline {
     parameters {
         string(defaultValue: 'dev', description: 'Target environment', name: 'ENVIRONMENT', trim: true)
         string(defaultValue: '', description: 'The zipcode service URL', name: 'ZIPCODE_URL', trim: true)
+        string(defaultValue: '', description: 'The zipcode service environment', name: 'ZIPCODE_ENV', trim: true)
     }
 
     stages {
@@ -14,6 +15,7 @@ pipeline {
                     env.version = (gradle =~ /version\s*=\s*["'](.+)["']/)[0][1]
                     echo "Inferred version: ${env.version}"
                     env.ENVIRONMENT = params.ENVIRONMENT
+                    env.ZIPCODE_ENV = params.ZIPCODE_ENV ? params.ENVIRONMENT
                 }
             }
         }
@@ -118,7 +120,7 @@ def getInternalAddress(id, resourceName) {
 def getDefaultZipcodeUrl() {
     // Store build state
     withAWS(credentials: 'jenkins') {
-        s3Download(file: 'state.json', bucket: 'prydin-build-states', path: "vexpress/zipcode/${env.ENVIRONMENT}/state.json", force: true)
+        s3Download(file: 'state.json', bucket: 'prydin-build-states', path: "vexpress/zipcode/${env.ZIPCODE_ENV}/state.json", force: true)
         def json = readJSON(file: 'state.json')
         print("Found deployment record: " + json)
         return json.url

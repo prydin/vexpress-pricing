@@ -59,9 +59,11 @@ pipeline {
                 withCredentials([usernamePassword(credentialsId: 'sshCreds', passwordVariable: 'PASSWORD', usernameVariable: 'USER')]) {
                     script {
                         def depId = vraDeployFromCatalog(
+                                trustSelfSignedCert: true,
                                 configFormat: "yaml",
                                 config: readFile('infra/appserver.yaml'))[0].id
                         vraWaitForAddress(
+                                trustSelfSignedCert: true,
                                 deploymentId: depId,
                                 resourceName: 'JavaServer')[0]
                         env.appIp = getInternalAddress(depId, "JavaServer")
@@ -116,6 +118,7 @@ pipeline {
 
 def getInternalAddress(id, resourceName) {
     def dep = vraGetDeployment(
+            trustSelfSignedCert: true,
             deploymentId: id,
             expandResources: true
     )

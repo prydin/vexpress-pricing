@@ -107,9 +107,9 @@ pipeline {
         stage("Finalize") {
             steps {
                 // Store build state
-                withAWS(credentials: 'jenkins') {
+                withAWS(credentials: 'jenkins', region: 'us-west-1') {
                     writeJSON(file: 'state.json', json: ['url': "http://${env.appIp}:8080", 'deploymentIds': [env.depId]])
-                    s3Upload(file: 'state.json', region: 'us-west-1', bucket: 'prydin-build-states', path: "vexpress/pricing/${env.ENVIRONMENT}/state.json")
+                    s3Upload(file: 'state.json', bucket: 'prydin-build-states', path: "vexpress/pricing/${env.ENVIRONMENT}/state.json")
                 }
             }
         }
@@ -127,8 +127,8 @@ def getInternalAddress(id, resourceName) {
 
 def getDefaultZipcodeUrl() {
     // Store build state
-    withAWS(credentials: 'jenkins') {
-        s3Download(file: 'state.json', region: 'us-west-1', bucket: 'prydin-build-states', path: "vexpress/zipcode/${env.ZIPCODE_ENV}/state.json", force: true)
+    withAWS(credentials: 'jenkins', region: 'us-west-1') {
+        s3Download(file: 'state.json', bucket: 'prydin-build-states', path: "vexpress/zipcode/${env.ZIPCODE_ENV}/state.json", force: true)
         def json = readJSON(file: 'state.json')
         print("Found deployment record: " + json)
         return json.url

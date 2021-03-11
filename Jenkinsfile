@@ -5,6 +5,8 @@ pipeline {
         string(defaultValue: 'dev', description: 'Target environment', name: 'ENVIRONMENT', trim: true)
         string(defaultValue: '', description: 'The zipcode service URL', name: 'ZIPCODE_URL', trim: true)
         string(defaultValue: '', description: 'The zipcode service environment', name: 'ZIPCODE_ENV', trim: true)
+        string(defaultValue: 'JenkinsTest', description: 'Project', name: 'PROJECT', trim: true)
+        string(defaultValue: 'AWS', description: 'Cloud', name: 'CLOUD', trim: true)
     }
 
     stages {
@@ -16,6 +18,8 @@ pipeline {
                     echo "Inferred version: ${env.version}"
                     env.ENVIRONMENT = params.ENVIRONMENT
                     env.ZIPCODE_ENV = params.ZIPCODE_ENV ? params.ZIPCODE_ENV : params.ENVIRONMENT
+                    env.PROJECT = params.PROJECT ? params.PROJECT : "JenkinsTest" // TODO: Change to Virtual Express
+                    env.CLOUD = params.CLOUD ? params.CLOUD : "AWS"
                 }
             }
         }

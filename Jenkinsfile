@@ -88,7 +88,7 @@ pipeline {
                         echo "Zipcode service URL: ${zipUrl}"
                         def txt = readFile(file: 'templates/application-properties.tpl')
                         txt = txt.replace('$ZIPCODE_URL', zipUrl).
-                                eplace('$TO_URL', env.TO_URL).
+                                replace('$TO_URL', env.TO_URL).
                                 replace('$TO_TOKEN', env.TO_TOKEN)
                         writeFile(file: "application.properties", text: txt)
 

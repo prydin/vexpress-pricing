@@ -26,6 +26,13 @@ dependencies {
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
 }
 
+dependencyManagement {
+    imports {
+        mavenBom "com.wavefront:wavefront-spring-boot-bom:${wavefrontVersion}"
+        mavenBom "org.springframework.cloud:spring-cloud-dependencies:${springCloudVersion}"
+    }
+}
+
 test {
     useJUnitPlatform()
 }
